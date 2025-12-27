@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Courses - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="logo">🎓 Admin Panel</div>
+            <nav class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}">📊 Dashboard</a>
+                <a href="{{ url_for('admin_courses') }}" class="active">📚 Courses</a>
+                <a href="{{ url_for('admin_users') }}">👥 Users</a>
+                <a href="{{ url_for('admin_statistics') }}">📈 Statistics</a>
+                <a href="{{ url_for('index') }}">🏠 Back to Site</a>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>Manage Courses</h1>
+                <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary">➕ Add New Course</a>
+            </header>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="admin-section">
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Icon</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Difficulty</th>
+                                <th>Duration</th>
+                                <th>Lessons</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in courses %}
+                            <tr>
+                                <td><span class="course-emoji">{{ course.image }}</span></td>
+                                <td><strong>{{ course.title }}</strong></td>
+                                <td>{{ course.category }}</td>
+                                <td><span class="badge badge-{{ course.difficulty|lower }}">{{ course.difficulty }}</span></td>
+                                <td>{{ course.duration }}</td>
+                                <td>{{ course.lessons|length }}</td>
+                                <td>
+                                    {% if course.is_published %}
+                                        <span class="badge badge-success">Published</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Draft</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('admin_course_lessons', course_id=course.id) }}" class="btn btn-sm btn-info" title="Manage Lessons">📖 Lessons</a>
+                                        <a href="{{ url_for('admin_edit_course', course_id=course.id) }}" class="btn btn-sm btn-warning" title="Edit Course">✏️ Edit</a>
+                                        <form method="POST" action="{{ url_for('admin_delete_course', course_id=course.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this course?');">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Course">🗑️ Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

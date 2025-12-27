@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.title }} - Oguz AI Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 Oguz AI Academy</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/courses">Courses</a></li>
+                {% if session.user_id %}
+                    <li><a href="/dashboard">Dashboard</a></li>
+                {% endif %}
+                <li><a href="/about">About</a></li>
+            </ul>
+            <div>
+                {% if session.user_id %}
+                    <span class="user-name">👤 {{ session.username }}</span>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <section class="course-detail-section">
+        <div class="course-detail-container">
+            <div class="course-detail-header">
+                <div class="course-header-content">
+                    <div class="course-icon-huge">{{ course.image }}</div>
+                    <div class="course-header-text">
+                        <h1>{{ course.title }}</h1>
+                        <p class="course-description">{{ course.description }}</p>
+                        <div class="course-badges">
+                            <span class="badge-info">📂 {{ course.category }}</span>
+                            <span class="badge-info">📊 {{ course.difficulty }}</span>
+                            <span class="badge-info">⏱️ {{ course.duration }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-header-actions">
+                    {% if session.user_id %}
+                        {% if progress %}
+                            <div class="enrollment-status">
+                                <span class="enrolled-badge">✓ Enrolled</span>
+                                {% if progress.completed %}
+                                    <span class="completed-badge">🏆 Completed</span>
+                                {% endif %}
+                            </div>
+                            <a href="/quiz/{{ course.id }}" class="btn btn-secondary btn-lg">📝 Take Quiz</a>
+                        {% else %}
+                            <a href="/enroll/{{ course.id }}" class="btn btn-primary btn-lg">🚀 Enroll Now</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="/login" class="btn btn-primary btn-lg">Login to Enroll</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if progress and lessons %}
+            <div class="progress-section">
+                <h3>Your Progress</h3>
+                <div class="progress-bar-large">
+                    <div class="progress-bar-fill" style="width: {{ progress.progress_percentage }}%"></div>
+                    <span class="progress-text">{{ progress.progress_percentage }}%</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if lessons %}
+            <div class="course-lessons-section">
+                <h2>📖 Course Lessons</h2>
+                <div class="lessons-list">
+                    {% for lesson in lessons %}
+                    <div class="lesson-item">
+                        <div class="lesson-number">{{ lesson.order }}</div>
+                        <div class="lesson-content">
+                            <h3>{{ lesson.title }}</h3>
+                            {% if lesson.duration %}
+                                <span class="lesson-duration">⏱️ {{ lesson.duration }}</span>
+                            {% endif %}
+                            {% if lesson.video_url %}
+                                <span class="video-badge">🎥 Video Available</span>
+                            {% endif %}
+                            <details class="lesson-details">
+                                <summary>View Lesson Content</summary>
+                                <div class="lesson-detail-content">
+                                    {% if lesson.video_url %}
+                                    <div class="video-container">
+                                        <iframe src="{{ lesson.video_url }}" frameborder="0" allowfullscreen></iframe>
+                                    </div>
+                                    {% endif %}
+                                    <div class="lesson-text">
+                                        {{ lesson.content|safe }}
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="course-content-section">
+                <h2>📋 Course Overview</h2>
+                <div class="course-full-content">
+                    {{ course.content|safe }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Oguz AI Academy. All rights reserved.</p>
+    </footer>
+</body>
+</html>

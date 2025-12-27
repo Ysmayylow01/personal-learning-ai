@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="logo">🎓 Admin Panel</div>
+            <nav class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}">📊 Dashboard</a>
+                <a href="{{ url_for('admin_courses') }}">📚 Courses</a>
+                <a href="{{ url_for('admin_users') }}">👥 Users</a>
+                <a href="{{ url_for('admin_statistics') }}" class="active">📈 Statistics</a>
+                <a href="{{ url_for('index') }}">🏠 Back to Site</a>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>Platform Statistics</h1>
+                <p>Comprehensive analytics and insights</p>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3>Total Users</h3>
+                        <p class="stat-number">{{ total_users }}</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <h3>Total Courses</h3>
+                        <p class="stat-number">{{ total_courses }}</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3>Total Enrollments</h3>
+                        <p class="stat-number">{{ total_enrollments }}</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <h3>Completions</h3>
+                        <p class="stat-number">{{ total_completions }}</p>
+                        <small>{{ ((total_completions / total_enrollments * 100) if total_enrollments > 0 else 0)|round(1) }}% completion rate</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="admin-section">
+                    <h2>Course Enrollments</h2>
+                    <canvas id="enrollmentsChart"></canvas>
+                </div>
+
+                <div class="admin-section">
+                    <h2>Course Completions</h2>
+                    <canvas id="completionsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>Detailed Course Statistics</h2>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Enrollments</th>
+                                <th>Completions</th>
+                                <th>Completion Rate</th>
+                                <th>Avg Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in course_data %}
+                            <tr>
+                                <td><strong>{{ course.title }}</strong></td>
+                                <td>{{ course.enrollments }}</td>
+                                <td>{{ course.completions }}</td>
+                                <td>
+                                    {% set completion_rate = (course.completions / course.enrollments * 100) if course.enrollments > 0 else 0 %}
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: {{ completion_rate }}%"></div>
+                                        <span class="progress-text">{{ completion_rate|round(1) }}%</span>
+                                    </div>
+                                </td>
+                                <td>{{ course.avg_progress }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Enrollments Chart
+        const enrollmentsData = {
+            labels: [{% for course in course_data %}'{{ course.title }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Enrollments',
+                data: [{% for course in course_data %}{{ course.enrollments }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(102, 234, 108, 0.8)',
+                borderColor: 'rgba(102, 234, 108, 1)',
+                borderWidth: 2
+            }]
+        };
+
+        new Chart(document.getElementById('enrollmentsChart'), {
+            type: 'bar',
+            data: enrollmentsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Completions Chart
+        const completionsData = {
+            labels: [{% for course in course_data %}'{{ course.title }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Completions',
+                data: [{% for course in course_data %}{{ course.completions }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: 'rgba(75, 159, 162, 0.8)',
+                borderColor: 'rgba(75, 159, 162, 1)',
+                borderWidth: 2
+            }]
+        };
+
+        new Chart(document.getElementById('completionsChart'), {
+            type: 'bar',
+            data: completionsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

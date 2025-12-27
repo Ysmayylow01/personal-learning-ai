@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Oguz AI Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="logo">🎓 Admin Panel</div>
+            <nav class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}" class="active">📊 Dashboard</a>
+                <a href="{{ url_for('admin_courses') }}">📚 Courses</a>
+                <a href="{{ url_for('admin_users') }}">👥 Users</a>
+                <a href="{{ url_for('admin_statistics') }}">📈 Statistics</a>
+                <a href="{{ url_for('index') }}">🏠 Back to Site</a>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>Dashboard</h1>
+                <p>Welcome back, {{ session.username }}!</p>
+            </header>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3>Total Users</h3>
+                        <p class="stat-number">{{ total_users }}</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <h3>Total Courses</h3>
+                        <p class="stat-number">{{ total_courses }}</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📖</div>
+                    <div class="stat-info">
+                        <h3>Total Lessons</h3>
+                        <p class="stat-number">{{ total_lessons }}</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3>Total Enrollments</h3>
+                        <p class="stat-number">{{ total_enrollments }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>Course Statistics</h2>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Category</th>
+                                <th>Difficulty</th>
+                                <th>Enrollments</th>
+                                <th>Completions</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in course_stats %}
+                            <tr>
+                                <td>{{ stat.course.image }} {{ stat.course.title }}</td>
+                                <td>{{ stat.course.category }}</td>
+                                <td><span class="badge badge-{{ stat.course.difficulty|lower }}">{{ stat.course.difficulty }}</span></td>
+                                <td>{{ stat.enrollments }}</td>
+                                <td>{{ stat.completions }}</td>
+                                <td>
+                                    {% if stat.course.is_published %}
+                                        <span class="badge badge-success">Published</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Draft</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>Recent Users</h2>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                        <span class="badge badge-danger">Admin</span>
+                                    {% else %}
+                                        <span class="badge badge-info">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>Recent Enrollments</h2>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Course</th>
+                                <th>Progress</th>
+                                <th>Last Accessed</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enrollment in recent_enrollments %}
+                            <tr>
+                                <td>{{ enrollment.user.username }}</td>
+                                <td>{{ enrollment.course.title }}</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: {{ enrollment.progress_percentage }}%"></div>
+                                        <span class="progress-text">{{ enrollment.progress_percentage }}%</span>
+                                    </div>
+                                </td>
+                                <td>{{ enrollment.last_accessed.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if enrollment.completed %}
+                                        <span class="badge badge-success">Completed</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">In Progress</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

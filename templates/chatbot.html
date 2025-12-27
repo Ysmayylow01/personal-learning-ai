@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Oguz AI Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 Oguz AI Academy</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/courses">Courses</a></li>
+                {% if session.user_id %}
+                    <li><a href="/dashboard">Dashboard</a></li>
+                {% endif %}
+                <li><a href="/about">About</a></li>
+            </ul>
+            <div>
+                {% if session.user_id %}
+                    <span class="user-name">👤 {{ session.username }}</span>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <section class="chatbot-section">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="chatbot-header-content">
+                    <div class="chatbot-avatar">🤖</div>
+                    <div>
+                        <h1>AI Learning Assistant</h1>
+                        <p class="chatbot-status">
+                            <span class="status-dot"></span>
+                            Online - Powered by DeepSeek
+                        </p>
+                    </div>
+                </div>
+                <button class="btn-close-chat" onclick="window.history.back()">✕</button>
+            </div>
+
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>Hello! I'm your AI learning assistant. I can help you with:</p>
+                        <ul>
+                            <li>Questions about AI and Machine Learning</li>
+                            <li>Explaining complex concepts</li>
+                            <li>Programming help</li>
+                            <li>Course recommendations</li>
+                            <li>Study tips and resources</li>
+                        </ul>
+                        <p>How can I help you today?</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chatbot-suggestions" id="suggestions">
+                <button class="suggestion-chip" onclick="sendSuggestion('What is machine learning?')">
+                    What is machine learning?
+                </button>
+                <button class="suggestion-chip" onclick="sendSuggestion('Explain neural networks')">
+                    Explain neural networks
+                </button>
+                <button class="suggestion-chip" onclick="sendSuggestion('Best way to learn AI?')">
+                    Best way to learn AI?
+                </button>
+                <button class="suggestion-chip" onclick="sendSuggestion('Python for beginners')">
+                    Python for beginners
+                </button>
+            </div>
+
+            <div class="chatbot-input-area">
+                <form id="chatForm" class="chatbot-form">
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        placeholder="Ask me anything about AI..." 
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="submit" class="btn-send" id="sendBtn">
+                        <span id="sendIcon">📤</span>
+                        <span id="loadingIcon" style="display: none;">⏳</span>
+                    </button>
+                </form>
+                <p class="chatbot-disclaimer">AI responses may contain errors. Always verify important information.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const sendIcon = document.getElementById('sendIcon');
+        const loadingIcon = document.getElementById('loadingIcon');
+        const suggestions = document.getElementById('suggestions');
+
+        // Auto-scroll to bottom
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Add user message to chat
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p>${escapeHtml(message)}</p>
+                </div>
+                <div class="message-avatar">👤</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Add bot message to chat
+        function addBotMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <p>${formatMessage(message)}</p>
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Add typing indicator
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Format message (convert markdown-like syntax to HTML)
+        function formatMessage(text) {
+            // Convert **bold** to <strong>
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert *italic* to <em>
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Convert code blocks
+            text = text.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+            
+            // Convert inline code
+            text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+            
+            // Convert newlines to <br>
+            text = text.replace(/\n/g, '<br>');
+            
+            return text;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Send message
+        async function sendMessage(message) {
+            if (!message.trim()) return;
+
+            // Hide suggestions after first message
+            suggestions.style.display = 'none';
+
+            // Add user message
+            addUserMessage(message);
+            userInput.value = '';
+
+            // Disable input
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+            sendIcon.style.display = 'none';
+            loadingIcon.style.display = 'inline';
+
+            // Show typing indicator
+            showTyping();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                hideTyping();
+
+                if (response.ok) {
+                    addBotMessage(data.message);
+                } else {
+                    addBotMessage('Sorry, I encountered an error. Please try again. Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                hideTyping();
+                addBotMessage('Sorry, I could not connect to the server. Please check your internet connection and try again.');
+                console.error('Error:', error);
+            } finally {
+                // Re-enable input
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                sendIcon.style.display = 'inline';
+                loadingIcon.style.display = 'none';
+                userInput.focus();
+            }
+        }
+
+        // Handle form submit
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = userInput.value;
+            sendMessage(message);
+        });
+
+        // Handle suggestion clicks
+        function sendSuggestion(message) {
+            sendMessage(message);
+        }
+
+        // Focus input on load
+        userInput.focus();
+    </script>
+</body>
+</html>

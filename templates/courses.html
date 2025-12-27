@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Courses - Oguz AI Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 Oguz AI Academy</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/courses">Courses</a></li>
+                {% if session.user_id %}
+                    <li><a href="/dashboard">Dashboard</a></li>
+                {% endif %}
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+            <div>
+                {% if session.user_id %}
+                    <span class="user-name">👤 {{ session.username }}</span>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                {% else %}
+                    <a href="/login" class="btn btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1>Explore Our Courses 📚</h1>
+            <p>Choose from a wide range of AI and Machine Learning courses</p>
+        </div>
+    </section>
+
+    <section class="courses-page-section">
+        <div class="courses-page-container">
+            <div class="courses-filters">
+                <button class="filter-btn active" data-filter="all">All Courses</button>
+                <button class="filter-btn" data-filter="beginner">Beginner</button>
+                <button class="filter-btn" data-filter="intermediate">Intermediate</button>
+                <button class="filter-btn" data-filter="advanced">Advanced</button>
+            </div>
+
+            <div class="course-grid-full">
+                {% for course in courses %}
+                <div class="course-card-full" data-difficulty="{{ course.difficulty|lower }}">
+                    <div class="course-card-header">
+                        <div class="course-icon-big">{{ course.image }}</div>
+                        <span class="difficulty-badge {{ course.difficulty|lower }}">{{ course.difficulty }}</span>
+                    </div>
+                    <div class="course-card-body">
+                        <h3>{{ course.title }}</h3>
+                        <div class="course-meta-info">
+                            <span>📂 {{ course.category }}</span>
+                            <span>⏱️ {{ course.duration }}</span>
+                        </div>
+                        <p>{{ course.description }}</p>
+                    </div>
+                    <div class="course-card-footer">
+                        <a href="/course/{{ course.slug }}" class="btn btn-primary btn-block">View Course</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Oguz AI Academy. All rights reserved.</p>
+        <p>Empowering the next generation of AI innovators</p>
+    </footer>
+
+    <!-- Chatbot Button -->
+    <a href="/chatbot" class="chatbot-float-btn" title="AI Assistant">
+        💬
+    </a>
+
+    <script>
+        // Filter functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const courseCards = document.querySelectorAll('.course-card-full');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+
+                const filter = btn.dataset.filter;
+
+                courseCards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        if (card.dataset.difficulty === filter) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

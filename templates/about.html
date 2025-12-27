@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Oguz AI Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 Oguz AI Academy</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/courses">Courses</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+            <div>
+                {% if session.user_id %}
+                    <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+                {% else %}
+                    <a href="/login" class="btn btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1>About Oguz AI Academy 🎓</h1>
+            <p>Empowering the next generation of AI innovators</p>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <div class="about-container">
+            <div class="about-content">
+                <div class="about-card">
+                    <h2>Our Mission 🎯</h2>
+                    <p>At Oguz AI Academy, our mission is to democratize AI education and make cutting-edge machine learning knowledge accessible to everyone. We believe that artificial intelligence is the future, and everyone should have the opportunity to learn and grow in this exciting field.</p>
+                </div>
+
+                <div class="about-card">
+                    <h2>What We Offer 📚</h2>
+                    <ul class="feature-list">
+                        <li>
+                            <strong>Comprehensive Curriculum:</strong> From beginner to advanced levels, covering Machine Learning, Deep Learning, NLP, Computer Vision, and more.
+                        </li>
+                        <li>
+                            <strong>Hands-on Projects:</strong> Real-world projects that help you build a portfolio and gain practical experience.
+                        </li>
+                        <li>
+                            <strong>Expert Instruction:</strong> Learn from industry professionals with years of experience in AI and machine learning.
+                        </li>
+                        <li>
+                            <strong>Flexible Learning:</strong> Study at your own pace, anytime and anywhere.
+                        </li>
+                        <li>
+                            <strong>Interactive Quizzes:</strong> Test your knowledge and track your progress throughout each course.
+                        </li>
+                        <li>
+                            <strong>Certificates:</strong> Earn certificates upon completion to showcase your skills.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="about-card">
+                    <h2>Our Story 📖</h2>
+                    <p>Founded by passionate AI enthusiasts and educators, Oguz AI Academy was created to bridge the gap between academic AI research and practical industry applications. We noticed that many aspiring AI professionals struggled to find quality, structured learning resources that combined theory with hands-on practice.</p>
+                    <p>Today, we're proud to serve thousands of students worldwide, helping them transform their careers and contribute to the AI revolution.</p>
+                </div>
+
+                <div class="stats-showcase">
+                    <div class="stat-showcase-item">
+                        <div class="stat-showcase-number">10,000+</div>
+                        <div class="stat-showcase-label">Students</div>
+                    </div>
+                    <div class="stat-showcase-item">
+                        <div class="stat-showcase-number">50+</div>
+                        <div class="stat-showcase-label">Courses</div>
+                    </div>
+                    <div class="stat-showcase-item">
+                        <div class="stat-showcase-number">95%</div>
+                        <div class="stat-showcase-label">Satisfaction Rate</div>
+                    </div>
+                    <div class="stat-showcase-item">
+                        <div class="stat-showcase-number">24/7</div>
+                        <div class="stat-showcase-label">Support</div>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h2>Our Values 💎</h2>
+                    <div class="values-grid">
+                        <div class="value-item">
+                            <div class="value-icon">🎯</div>
+                            <h3>Excellence</h3>
+                            <p>We strive for the highest quality in everything we do.</p>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-icon">🤝</div>
+                            <h3>Accessibility</h3>
+                            <p>AI education should be available to everyone, everywhere.</p>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-icon">🚀</div>
+                            <h3>Innovation</h3>
+                            <p>We continuously update our content to reflect the latest in AI.</p>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-icon">❤️</div>
+                            <h3>Community</h3>
+                            <p>Learning is better together. We foster a supportive community.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cta-section">
+                    <h2>Ready to Start Your AI Journey? 🚀</h2>
+                    <p>Join thousands of students already learning with us</p>
+                    <a href="/courses" class="btn btn-primary btn-lg">Explore Courses</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Oguz AI Academy. All rights reserved.</p>
+        <p>Empowering the next generation of AI innovators</p>
+    </footer>
+
+    <!-- Chatbot Button -->
+    <a href="/chatbot" class="chatbot-float-btn" title="AI Assistant">
+        💬
+    </a>
+</body>
+</html>

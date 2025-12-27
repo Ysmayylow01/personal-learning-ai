@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - {{ course.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 Oguz AI Academy</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/courses">Courses</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+            <div>
+                <span class="user-name">👤 {{ session.username }}</span>
+                <a href="/logout" class="btn btn-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="quiz-section">
+        <div class="quiz-container">
+            <div class="quiz-header">
+                <h1>{{ course.image }} {{ course.title }} Quiz</h1>
+                <p>Test your knowledge and earn your certificate!</p>
+            </div>
+
+            <div id="quiz-content">
+                <div id="question-container">
+                    <!-- Questions will be loaded dynamically -->
+                </div>
+
+                <div class="quiz-navigation">
+                    <button id="prev-btn" class="btn btn-secondary" style="display: none;">← Previous</button>
+                    <div class="question-counter">
+                        <span id="current-question">1</span> / <span id="total-questions">10</span>
+                    </div>
+                    <button id="next-btn" class="btn btn-primary">Next →</button>
+                    <button id="submit-btn" class="btn btn-success" style="display: none;">Submit Quiz</button>
+                </div>
+            </div>
+
+            <div id="quiz-results" style="display: none;">
+                <div class="results-card">
+                    <div class="results-icon">🎉</div>
+                    <h2>Quiz Completed!</h2>
+                    <div class="score-display">
+                        <span id="score">0</span> / <span id="total">10</span>
+                    </div>
+                    <p id="score-message"></p>
+                    <div class="results-actions">
+                        <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+                        <a href="/course/{{ course.slug }}" class="btn btn-secondary">View Course</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Oguz AI Academy. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Sample quiz questions - in production, these would come from the backend
+        const quizQuestions = [
+            {
+                question: "What is Machine Learning?",
+                options: [
+                    "A type of computer hardware",
+                    "A subset of AI that enables systems to learn from data",
+                    "A programming language",
+                    "A database system"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is a supervised learning algorithm?",
+                options: [
+                    "K-Means Clustering",
+                    "Linear Regression",
+                    "PCA",
+                    "Autoencoders"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'overfitting' mean in machine learning?",
+                options: [
+                    "Model performs well on training data but poorly on test data",
+                    "Model has too few parameters",
+                    "Training data is too small",
+                    "Model is too simple"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is the purpose of a validation set?",
+                options: [
+                    "To train the model",
+                    "To tune hyperparameters and prevent overfitting",
+                    "To test final model performance",
+                    "To clean the data"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which activation function is most commonly used in hidden layers of neural networks?",
+                options: [
+                    "Sigmoid",
+                    "Softmax",
+                    "ReLU",
+                    "Linear"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is gradient descent?",
+                options: [
+                    "A data preprocessing technique",
+                    "An optimization algorithm to minimize loss function",
+                    "A type of neural network",
+                    "A feature selection method"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the difference between classification and regression?",
+                options: [
+                    "Classification predicts categories, regression predicts continuous values",
+                    "They are the same thing",
+                    "Classification is faster than regression",
+                    "Regression only works with text data"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is cross-validation used for?",
+                options: [
+                    "Data cleaning",
+                    "Assessing model performance on limited data",
+                    "Feature engineering",
+                    "Data visualization"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which library is most commonly used for machine learning in Python?",
+                options: [
+                    "NumPy",
+                    "scikit-learn",
+                    "Pandas",
+                    "Matplotlib"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is a confusion matrix?",
+                options: [
+                    "A type of neural network",
+                    "A table showing actual vs predicted classifications",
+                    "A data preprocessing tool",
+                    "A feature selection method"
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let score = 0;
+
+        function loadQuestion() {
+            const question = quizQuestions[currentQuestion];
+            const container = document.getElementById('question-container');
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <h3>Question ${currentQuestion + 1}</h3>
+                    <p class="question-text">${question.question}</p>
+                    <div class="options-container">
+                        ${question.options.map((option, index) => `
+                            <label class="option-label">
+                                <input type="radio" name="answer" value="${index}">
+                                <span>${option}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Update counter
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('total-questions').textContent = quizQuestions.length;
+
+            // Show/hide navigation buttons
+            document.getElementById('prev-btn').style.display = currentQuestion > 0 ? 'block' : 'none';
+            document.getElementById('next-btn').style.display = currentQuestion < quizQuestions.length - 1 ? 'block' : 'none';
+            document.getElementById('submit-btn').style.display = currentQuestion === quizQuestions.length - 1 ? 'block' : 'none';
+
+            // Pre-select previously selected answer
+            if (userAnswers[currentQuestion] !== undefined) {
+                const radio = container.querySelector(`input[value="${userAnswers[currentQuestion]}"]`);
+                if (radio) radio.checked = true;
+            }
+        }
+
+        function saveAnswer() {
+            const selected = document.querySelector('input[name="answer"]:checked');
+            if (selected) {
+                userAnswers[currentQuestion] = parseInt(selected.value);
+            }
+        }
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            saveAnswer();
+            if (currentQuestion < quizQuestions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            }
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            saveAnswer();
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        });
+
+        document.getElementById('submit-btn').addEventListener('click', async () => {
+            saveAnswer();
+            
+            // Calculate score
+            score = 0;
+            quizQuestions.forEach((q, index) => {
+                if (userAnswers[index] === q.correct) {
+                    score++;
+                }
+            });
+
+            // Submit to backend
+            try {
+                const response = await fetch('/submit_quiz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        course_id: {{ course.id }},
+                        score: score,
+                        total: quizQuestions.length
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Show results
+                document.getElementById('quiz-content').style.display = 'none';
+                document.getElementById('quiz-results').style.display = 'block';
+                document.getElementById('score').textContent = score;
+                document.getElementById('total').textContent = quizQuestions.length;
+                
+                const percentage = (score / quizQuestions.length) * 100;
+                let message = '';
+                if (percentage >= 90) {
+                    message = '🏆 Excellent! You have mastered this topic!';
+                } else if (percentage >= 70) {
+                    message = '👍 Great job! You have a good understanding!';
+                } else if (percentage >= 50) {
+                    message = '📚 Good effort! Keep studying to improve!';
+                } else {
+                    message = '💪 Keep learning! Review the course material and try again!';
+                }
+                document.getElementById('score-message').textContent = message;
+            } catch (error) {
+                alert('Error submitting quiz. Please try again.');
+                console.error(error);
+            }
+        });
+
+        // Load first question
+        loadQuestion();
+    </script>
+</body>
+</html>

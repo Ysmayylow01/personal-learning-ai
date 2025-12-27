@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if course %}Edit{% else %}Add{% endif %} Course - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="logo">🎓 Admin Panel</div>
+            <nav class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}">📊 Dashboard</a>
+                <a href="{{ url_for('admin_courses') }}" class="active">📚 Courses</a>
+                <a href="{{ url_for('admin_users') }}">👥 Users</a>
+                <a href="{{ url_for('admin_statistics') }}">📈 Statistics</a>
+                <a href="{{ url_for('index') }}">🏠 Back to Site</a>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1>{% if course %}Edit Course{% else %}Add New Course{% endif %}</h1>
+                <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">← Back to Courses</a>
+            </header>
+
+            <div class="admin-section">
+                <form method="POST" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Course Title *</label>
+                            <input type="text" id="title" name="title" value="{{ course.title if course else '' }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="slug">Slug (URL) *</label>
+                            <input type="text" id="slug" name="slug" value="{{ course.slug if course else '' }}" required placeholder="machine-learning">
+                            <small>Used in URL. Use lowercase and hyphens (e.g., machine-learning)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Short Description *</label>
+                        <textarea id="description" name="description" rows="3" required>{{ course.description if course else '' }}</textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Machine Learning" {% if course and course.category == 'Machine Learning' %}selected{% endif %}>Machine Learning</option>
+                                <option value="Deep Learning" {% if course and course.category == 'Deep Learning' %}selected{% endif %}>Deep Learning</option>
+                                <option value="NLP" {% if course and course.category == 'NLP' %}selected{% endif %}>NLP</option>
+                                <option value="Computer Vision" {% if course and course.category == 'Computer Vision' %}selected{% endif %}>Computer Vision</option>
+                                <option value="Reinforcement Learning" {% if course and course.category == 'Reinforcement Learning' %}selected{% endif %}>Reinforcement Learning</option>
+                                <option value="AI Ethics" {% if course and course.category == 'AI Ethics' %}selected{% endif %}>AI Ethics</option>
+                                <option value="Other" {% if course and course.category == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="difficulty">Difficulty Level *</label>
+                            <select id="difficulty" name="difficulty" required>
+                                <option value="">Select Difficulty</option>
+                                <option value="Beginner" {% if course and course.difficulty == 'Beginner' %}selected{% endif %}>Beginner</option>
+                                <option value="Intermediate" {% if course and course.difficulty == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                                <option value="Advanced" {% if course and course.difficulty == 'Advanced' %}selected{% endif %}>Advanced</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration">Duration *</label>
+                            <input type="text" id="duration" name="duration" value="{{ course.duration if course else '' }}" required placeholder="8 weeks">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">Icon Emoji *</label>
+                            <input type="text" id="image" name="image" value="{{ course.image if course else '' }}" required placeholder="🤖">
+                            <small>Use an emoji as the course icon</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">Full Course Content (HTML) *</label>
+                        <textarea id="content" name="content" rows="15" required>{{ course.content if course else '' }}</textarea>
+                        <small>You can use HTML tags for formatting. Include course overview, syllabus, projects, etc.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="is_published" {% if not course or course.is_published %}checked{% endif %}>
+                            <span>Publish this course (make it visible to students)</span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 {% if course %}Update Course{% else %}Create Course{% endif %}</button>
+                        <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">Cancel</a>
+                        {% if course %}
+                            <a href="{{ url_for('admin_course_lessons', course_id=course.id) }}" class="btn btn-info">📖 Manage Lessons</a>
+                        {% endif %}
+                    </div>
+                </form>
+                
+                {% if not course %}
+                <div class="info-box" style="margin-top: 2rem; padding: 1.5rem; background: #e3f2fd; border-radius: 10px; border-left: 4px solid #1976d2;">
+                    <strong>💡 Note:</strong> After creating the course, you'll be able to add lessons and videos from the courses list page.
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-generate slug from title
+        document.getElementById('title').addEventListener('input', function() {
+            const slugInput = document.getElementById('slug');
+            // Only auto-generate if slug is empty or if we're adding a new course
+            if (!slugInput.value || !{{ 'true' if course else 'false' }}) {
+                const slug = this.value.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                slugInput.value = slug;
+            }
+        });
+    </script>
+</body>
+</html>

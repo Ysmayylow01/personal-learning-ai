@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if lesson %}Edit{% else %}Add{% endif %} Lesson - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="logo">🎓 Admin Panel</div>
+            <nav class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}">📊 Dashboard</a>
+                <a href="{{ url_for('admin_courses') }}" class="active">📚 Courses</a>
+                <a href="{{ url_for('admin_users') }}">👥 Users</a>
+                <a href="{{ url_for('admin_statistics') }}">📈 Statistics</a>
+                <a href="{{ url_for('index') }}">🏠 Back to Site</a>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div>
+                    <h1>{% if lesson %}Edit Lesson{% else %}Add New Lesson{% endif %}</h1>
+                    <p>Course: {{ course.image }} {{ course.title }}</p>
+                </div>
+                <a href="{{ url_for('admin_course_lessons', course_id=course.id) }}" class="btn btn-secondary">← Back to Lessons</a>
+            </header>
+
+            <div class="admin-section">
+                <form method="POST" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Lesson Title *</label>
+                            <input type="text" id="title" name="title" value="{{ lesson.title if lesson else '' }}" required placeholder="Introduction to Neural Networks">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="order">Lesson Order *</label>
+                            <input type="number" id="order" name="order" value="{{ lesson.order if lesson else next_order }}" required min="1">
+                            <small>Determines the sequence of lessons</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration">Duration</label>
+                            <input type="text" id="duration" name="duration" value="{{ lesson.duration if lesson else '' }}" placeholder="45 minutes">
+                            <small>Optional: e.g., "30 minutes", "1 hour"</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="video_url">Video URL</label>
+                        <input type="url" id="video_url" name="video_url" value="{{ lesson.video_url if lesson else '' }}" placeholder="https://www.youtube.com/watch?v=...">
+                        <small>YouTube, Vimeo, or direct video URL</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">Lesson Content (HTML) *</label>
+                        <textarea id="content" name="content" rows="15" required>{{ lesson.content if lesson else '' }}</textarea>
+                        <small>Full lesson content with explanations, code examples, exercises, etc. You can use HTML for formatting.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <details class="help-section">
+                            <summary>💡 Formatting Tips</summary>
+                            <div class="help-content">
+                                <h4>HTML Formatting Examples:</h4>
+                                <pre>&lt;h2&gt;Section Title&lt;/h2&gt;
+&lt;p&gt;Paragraph text&lt;/p&gt;
+&lt;ul&gt;
+    &lt;li&gt;Bullet point 1&lt;/li&gt;
+    &lt;li&gt;Bullet point 2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;
+# Code example
+def hello():
+    print("Hello World")
+&lt;/code&gt;&lt;/pre&gt;</pre>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 {% if lesson %}Update Lesson{% else %}Create Lesson{% endif %}</button>
+                        <a href="{{ url_for('admin_course_lessons', course_id=course.id) }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

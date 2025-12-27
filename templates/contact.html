@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Oguz AI Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 Oguz AI Academy</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/courses">Courses</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+            <div>
+                {% if session.user_id %}
+                    <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+                {% else %}
+                    <a href="/login" class="btn btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1>Get In Touch 📧</h1>
+            <p>We'd love to hear from you!</p>
+        </div>
+    </section>
+
+    <section class="contact-section">
+        <div class="contact-container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h2>Contact Information</h2>
+                    <p>Have a question or need support? Reach out to us through any of these channels.</p>
+
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <div class="contact-icon">📧</div>
+                            <div class="contact-details">
+                                <h3>Email</h3>
+                                <p>info@oguzai.academy</p>
+                                <p>support@oguzai.academy</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-method">
+                            <div class="contact-icon">📱</div>
+                            <div class="contact-details">
+                                <h3>Phone</h3>
+                                <p>+1 (555) 123-4567</p>
+                                <p>Mon-Fri: 9AM - 6PM EST</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-method">
+                            <div class="contact-icon">📍</div>
+                            <div class="contact-details">
+                                <h3>Address</h3>
+                                <p>123 AI Innovation Street</p>
+                                <p>Tech City, TC 12345</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-method">
+                            <div class="contact-icon">💬</div>
+                            <div class="contact-details">
+                                <h3>Social Media</h3>
+                                <div class="social-links">
+                                    <a href="#" class="social-link">Twitter</a>
+                                    <a href="#" class="social-link">LinkedIn</a>
+                                    <a href="#" class="social-link">GitHub</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-container">
+                    <h2>Send Us a Message</h2>
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name *</label>
+                            <input type="text" id="name" name="name" required placeholder="John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Your Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="john@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Subject *</label>
+                            <input type="text" id="subject" name="subject" required placeholder="How can we help?">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message *</label>
+                            <textarea id="message" name="message" rows="6" required placeholder="Tell us what's on your mind..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">📤 Send Message</button>
+                    </form>
+                    <div id="form-status" style="display: none; margin-top: 1rem;"></div>
+                </div>
+            </div>
+
+            <div class="faq-section">
+                <h2>Frequently Asked Questions 💭</h2>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h3>How do I enroll in a course?</h3>
+                        <p>Simply create an account, browse our courses, and click "Enroll Now" on any course page. You'll get instant access to all course materials.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>Are the courses free?</h3>
+                        <p>We offer both free and premium courses. All our foundational courses are completely free to access.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>Do I get a certificate?</h3>
+                        <p>Yes! Upon completing a course and passing the final quiz, you'll receive a certificate that you can share on LinkedIn and other platforms.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>Can I learn at my own pace?</h3>
+                        <p>Absolutely! All our courses are self-paced, so you can learn whenever and wherever works best for you.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>What if I need help with a course?</h3>
+                        <p>We have a community forum where you can ask questions, and our support team is always ready to help via email.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>What prerequisites do I need?</h3>
+                        <p>Prerequisites vary by course. Beginner courses require no prior knowledge, while advanced courses may require basic programming and math skills.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Oguz AI Academy. All rights reserved.</p>
+        <p>Empowering the next generation of AI innovators</p>
+    </footer>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('form-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'alert alert-success';
+            statusDiv.textContent = '✓ Message sent successfully! We\'ll get back to you soon.';
+            
+            // Reset form
+            this.reset();
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

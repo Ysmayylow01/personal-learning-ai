@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Oguz AI Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎓 Oguz AI Academy</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/courses">Courses</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+            <div>
+                <span class="user-name">👤 {{ session.username }}</span>
+                <a href="/logout" class="btn btn-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="dashboard-section">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Welcome back, {{ user.username }}! 🎉</h1>
+                <p>Continue your learning journey</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="dashboard-stats">
+                <div class="stat-box">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <h3>Enrolled Courses</h3>
+                        <p class="stat-number">{{ enrolled_courses|length }}</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3>Completed</h3>
+                        <p class="stat-number">{{ enrolled_courses|selectattr('progress.completed', 'equalto', True)|list|length }}</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3>In Progress</h3>
+                        <p class="stat-number">{{ enrolled_courses|selectattr('progress.completed', 'equalto', False)|list|length }}</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <h3>Quiz Results</h3>
+                        <p class="stat-number">{{ quiz_results|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <section class="dashboard-card">
+                    <h2>My Courses</h2>
+                    {% if enrolled_courses %}
+                        <div class="course-list">
+                            {% for item in enrolled_courses %}
+                            <div class="enrolled-course-card">
+                                <div class="course-header">
+                                    <div class="course-icon-large">{{ item.course.image }}</div>
+                                    <div class="course-info">
+                                        <h3>{{ item.course.title }}</h3>
+                                        <div class="course-meta">
+                                            <span>{{ item.course.category }}</span>
+                                            <span>{{ item.course.difficulty }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="course-progress">
+                                    <div class="progress-info">
+                                        <span>Progress</span>
+                                        <span class="progress-percentage">{{ item.progress.progress_percentage }}%</span>
+                                    </div>
+                                    <div class="progress-bar-full">
+                                        <div class="progress-bar-fill" style="width: {{ item.progress.progress_percentage }}%"></div>
+                                    </div>
+                                </div>
+                                <div class="course-actions">
+                                    {% if item.progress.completed %}
+                                        <span class="badge-completed">✓ Completed</span>
+                                    {% else %}
+                                        <a href="/course/{{ item.course.slug }}" class="btn btn-primary">Continue Learning</a>
+                                    {% endif %}
+                                    <a href="/quiz/{{ item.course.id }}" class="btn btn-secondary">Take Quiz</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
+                            <h3>No Courses Yet</h3>
+                            <p>Start your learning journey by enrolling in a course!</p>
+                            <a href="/courses" class="btn btn-primary">Browse Courses</a>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section class="dashboard-card">
+                    <h2>Recent Quiz Results</h2>
+                    {% if quiz_results %}
+                        <div class="quiz-results-list">
+                            {% for result in quiz_results %}
+                            <div class="quiz-result-item">
+                                <div class="quiz-result-info">
+                                    <h4>{{ result.course.title }}</h4>
+                                    <p>{{ result.completed_at.strftime('%B %d, %Y at %H:%M') }}</p>
+                                </div>
+                                <div class="quiz-result-score">
+                                    <span class="score">{{ result.score }}/{{ result.total_questions }}</span>
+                                    <span class="percentage">{{ (result.score / result.total_questions * 100)|round(0)|int }}%</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state-small">
+                            <p>No quiz results yet. Take a quiz to see your scores!</p>
+                        </div>
+                    {% endif %}
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Oguz AI Academy. All rights reserved.</p>
+    </footer>
+</body>
+</html>
